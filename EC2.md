@@ -1833,4 +1833,418 @@ Associate
 Verify in EC2 Instance Details
 ```
 
+# AWS Security Groups (SG)
+
+## What is a Security Group?
+
+A **Security Group (SG)** is a **virtual firewall** for your AWS resources, such as EC2 instances.
+
+It controls:
+
+* **Inbound Traffic** → Traffic coming into the server
+* **Outbound Traffic** → Traffic leaving the server
+
+Think of it as:
+
+```text id="f0qsh1"
+Internet
+     ↓
+Security Group (Firewall)
+     ↓
+EC2 Instance
+```
+
+Every packet entering or leaving the EC2 instance is checked against the security group rules.
+
+---
+
+# Why Do We Need Security Groups?
+
+Our EC2 instance now has a **public IP address**.
+
+Without a firewall:
+
+```text id="9q48bl"
+Internet
+     ↓
+Anyone
+     ↓
+EC2 Instance
+```
+
+Anyone who knows the public IP could attempt to connect to the server.
+
+Security Groups allow us to decide:
+
+* Who can access our server
+* Which ports are open
+* What type of traffic is allowed
+
+---
+
+# Inbound vs Outbound Rules
+
+## Inbound Rules
+
+Control traffic entering the server.
+
+Example:
+
+```text id="06rcqb"
+Laptop
+   ↓
+SSH (Port 22)
+   ↓
+EC2 Instance
+```
+
+---
+
+## Outbound Rules
+
+Control traffic leaving the server.
+
+Example:
+
+```text id="tqvxx1"
+EC2 Instance
+      ↓
+Download Updates
+      ↓
+Internet
+```
+
+---
+
+# Example Rules
+
+## Web Server
+
+Allow:
+
+* HTTP (Port 80)
+* HTTPS (Port 443)
+
+Block:
+
+* Database ports
+* Unnecessary services
+
+---
+
+## Database Server
+
+Allow:
+
+* Database traffic from application servers only
+
+Block:
+
+* Public internet access
+
+---
+
+# Creating the Security Group
+
+## Step 1: Open Security Groups
+
+1. Open the AWS Console.
+2. Search for:
+
+```text id="ryg0oj"
+EC2
+```
+
+3. Under **Network & Security**, click:
+
+```text id="e6bovm"
+Security Groups
+```
+
+4. Click:
+
+```text id="gxg2zh"
+Create security group
+```
+
+---
+
+## Step 2: Configure the Security Group
+
+### Name
+
+```text id="woy89m"
+web-public
+```
+
+### Description
+
+```text id="7q8p1h"
+Allow public access
+```
+
+### VPC
+
+Select:
+
+```text id="hhkn0c"
+web-vpc
+```
+
+---
+
+# Step 3: Add an Inbound Rule
+
+Click:
+
+```text id="n85l8l"
+Add rule
+```
+
+Configure:
+
+### Type
+
+```text id="6z5gc4"
+SSH
+```
+
+### Protocol
+
+```text id="v9id2o"
+TCP
+```
+
+### Port
+
+```text id="h48yb1"
+22
+```
+
+### Source
+
+```text id="0d9qum"
+My IP
+```
+
+AWS automatically detects your current public IP.
+
+Example:
+
+```text id="6v8ofq"
+103.85.120.10/32
+```
+
+### Description
+
+```text id="xbzh7n"
+Allow SSH from my computer
+```
+
+---
+
+# Why Use "My IP"?
+
+Without it:
+
+```text id="kudv9v"
+0.0.0.0/0
+```
+
+means:
+
+```text id="oln14r"
+Anyone on the Internet
+      ↓
+Can Attempt SSH Access
+```
+
+With:
+
+```text id="z3t9fz"
+103.85.120.10/32
+```
+
+means:
+
+```text id="69t0ja"
+Only My Computer
+        ↓
+Can SSH into the Server
+```
+
+This is significantly more secure.
+
+---
+
+# Outbound Rules
+
+Leave the default outbound rule:
+
+```text id="3xg7kh"
+All Traffic
+Destination: 0.0.0.0/0
+```
+
+This allows the server to:
+
+* Download packages
+* Install updates
+* Access APIs
+* Connect to external services
+
+---
+
+# Create the Security Group
+
+Click:
+
+```text id="zuhg5e"
+Create security group
+```
+
+The new security group:
+
+```text id="w6vzxq"
+web-public
+```
+
+is now created.
+
+---
+
+# Attach Security Group to EC2
+
+## Step 1
+
+Go to:
+
+```text id="q9ujk0"
+EC2
+→ Instances
+```
+
+Select:
+
+```text id="7vz5qf"
+webserver-app
+```
+
+---
+
+## Step 2
+
+Click:
+
+```text id="d7ztu4"
+Actions
+→ Security
+→ Change security groups
+```
+
+---
+
+## Step 3
+
+Under:
+
+```text id="sq2o50"
+Associated security groups
+```
+
+Select:
+
+```text id="i5wrr0"
+web-public
+```
+
+Click:
+
+```text id="ye48a5"
+Add security group
+```
+
+Then click:
+
+```text id="n9vn9s"
+Save
+```
+
+---
+
+# Final Architecture
+
+```text id="4rzkjlwm"
+Internet
+     ↓
+Elastic IP
+     ↓
+Security Group (web-public)
+     ↓
+Allow:
+   SSH (Port 22)
+   Source: My IP
+     ↓
+EC2 Instance
+(webserver-app)
+```
+
+---
+
+# Security Group Configuration Summary
+
+| Setting             | Value               |
+| ------------------- | ------------------- |
+| Security Group Name | web-public          |
+| Description         | Allow public access |
+| VPC                 | web-vpc             |
+| Inbound Rule        | SSH                 |
+| Port                | 22                  |
+| Source              | My IP               |
+| Outbound Rules      | Allow All           |
+
+---
+
+# Important Characteristics of Security Groups
+
+* Acts as a virtual firewall
+* Attached to ENIs/EC2 instances
+* Supports inbound and outbound rules
+* Stateful by default
+* Denies all inbound traffic unless explicitly allowed
+* Allows all outbound traffic by default
+
+---
+
+# Quick Revision
+
+```text id="3bzkri"
+Public IP
+      ↓
+Security Group
+      ↓
+Inbound Rules
+      ↓
+SSH (22)
+Source: My IP
+      ↓
+EC2 Instance
+      ↓
+Outbound Rules
+Allow All
+      ↓
+Internet
+```
+
+**Remember:**
+
+```text id="dnnc9e"
+Security Group = Virtual Firewall
+Inbound Rules  = Incoming Traffic
+Outbound Rules = Outgoing Traffic
+My IP          = Only My Computer Can Connect
+```
+
+
+<img width="692" height="597" alt="image" src="https://github.com/user-attachments/assets/e98872ca-b3f2-4684-bf78-a92f9a474292" />
 
