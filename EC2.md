@@ -862,3 +862,512 @@ Remove SSH Rule
 Launch Instance
 ```
 
+# AMIs and Instance Types
+
+When launching an EC2 instance, two important decisions are:
+
+1. **Which AMI to use?**
+2. **Which Instance Type to use?**
+
+---
+
+# 1. Amazon Machine Image (AMI)
+
+An **Amazon Machine Image (AMI)** is a pre-configured template used to create an EC2 instance.
+
+It contains:
+
+* Operating System (Linux, Windows, etc.)
+* Installed software packages
+* System configurations
+* Boot instructions
+
+Think of an AMI as:
+
+```text
+AMI = Blueprint or Template of a Computer
+```
+
+When you launch an EC2 instance, AWS creates a virtual machine using this template.
+
+---
+
+## Example
+
+We selected:
+
+```text
+Amazon Linux
+```
+
+AWS creates an EC2 instance with:
+
+* Amazon Linux operating system
+* Default system configurations
+* Required boot files
+
+---
+
+## Common AMIs
+
+| AMI                      | Use Case                         |
+| ------------------------ | -------------------------------- |
+| Amazon Linux             | General-purpose Linux server     |
+| Ubuntu Server            | Web applications and development |
+| Windows Server           | Windows applications and .NET    |
+| Red Hat Enterprise Linux | Enterprise workloads             |
+| Debian                   | Lightweight Linux environments   |
+
+---
+
+## Custom AMIs
+
+AWS also allows you to create your own AMIs.
+
+### Why create a custom AMI?
+
+Suppose you always install:
+
+* Nginx
+* Node.js
+* Docker
+* Application code
+* Configuration files
+
+Instead of repeating these steps every time, you can:
+
+```text
+Configure Server
+        ↓
+Create AMI
+        ↓
+Launch New Instances Instantly
+```
+
+Benefits:
+
+* Faster deployments
+* Consistent configurations
+* Easy server replication
+* Useful for Auto Scaling
+* Easy migration between AWS regions
+
+---
+
+## AMI vs Docker Image
+
+| Feature                   | AMI   | Docker Image |
+| ------------------------- | ----- | ------------ |
+| Contains Operating System | ✅ Yes | ❌ No         |
+| Full Virtual Machine      | ✅ Yes | ❌ No         |
+| Includes Applications     | ✅ Yes | ✅ Yes        |
+| Used for EC2              | ✅ Yes | ❌ No         |
+| Lightweight               | ❌ No  | ✅ Yes        |
+
+Think of it like this:
+
+```text
+AMI     = Entire Computer
+Docker  = Application running inside a Computer
+```
+
+---
+
+# 2. Instance Type
+
+An **Instance Type** defines the hardware resources allocated to your EC2 instance.
+
+It determines:
+
+* CPU
+* RAM
+* Storage performance
+* Network performance
+* GPU availability
+* Processor architecture
+
+Think of it as:
+
+```text
+AMI           = Software
+Instance Type = Hardware
+```
+
+---
+
+# Example: t3.micro
+
+We selected:
+
+```text
+t3.micro
+```
+
+Specifications:
+
+* 2 vCPUs
+* 1 GB RAM
+* Burstable CPU performance
+* Free Tier eligible
+
+Approximate cost:
+
+```text
+$0.0104 per hour
+≈ $0.25 per day
+≈ $7.60 per month
+```
+
+Suitable for:
+
+* Learning AWS
+* Small websites
+* Development environments
+* Testing applications
+* Personal projects
+
+---
+
+# Instance Family Naming
+
+Example:
+
+```text
+t3.micro
+```
+
+Breakdown:
+
+```text
+t      → Instance family
+3      → Generation
+micro  → Instance size
+```
+
+---
+
+## Instance Families
+
+### T Family (Burstable)
+
+Examples:
+
+```text
+t2.micro
+t3.micro
+t3.small
+```
+
+Use cases:
+
+* Development
+* Small web applications
+* Testing environments
+
+---
+
+### M Family (General Purpose)
+
+Examples:
+
+```text
+m5.large
+m6i.large
+```
+
+Use cases:
+
+* Application servers
+* Medium-sized databases
+* Production web applications
+
+---
+
+### C Family (Compute Optimized)
+
+Examples:
+
+```text
+c6i.large
+c7g.xlarge
+```
+
+Use cases:
+
+* Scientific computing
+* High-performance applications
+* Batch processing
+
+---
+
+### R Family (Memory Optimized)
+
+Examples:
+
+```text
+r6i.large
+r7g.xlarge
+```
+
+Use cases:
+
+* Large databases
+* In-memory caching
+* Analytics systems
+
+---
+
+### P and G Families (GPU Instances)
+
+Examples:
+
+```text
+g5.xlarge
+p5.48xlarge
+```
+
+Use cases:
+
+* Machine Learning
+* Deep Learning
+* AI Training
+* Video rendering
+
+---
+
+# Scaling Example
+
+Small server:
+
+```text
+t3.micro
+2 vCPUs
+1 GB RAM
+≈ $7.60/month
+```
+
+Enterprise server:
+
+```text
+u7in-32tb.224xlarge
+224 vCPUs
+32 TB RAM
+≈ $263,520/month
+```
+
+AWS provides instance sizes ranging from tiny learning servers to massive enterprise systems.
+
+---
+
+# Quick Revision
+
+```text
+Launch EC2 Instance
+        ↓
+Choose AMI
+        ↓
+Operating System + Software Template
+        ↓
+Choose Instance Type
+        ↓
+CPU + RAM + Hardware Resources
+        ↓
+Launch Server
+```
+
+**Remember:**
+
+```text
+AMI           = Software Blueprint
+Instance Type = Hardware Configuration
+EC2 Instance  = Running Virtual Machine
+```
+# Public and Private IP Addresses in AWS
+
+## Overview
+
+In IPv4 networking, IP addresses are divided into two categories:
+
+1. **Public IP Addresses**
+2. **Private IP Addresses**
+
+The rules for these address ranges are defined in standards such as **RFC 1918** and **RFC 6598**.
+
+---
+
+# Public IP Addresses
+
+A **Public IP Address** is globally unique and can be reached over the internet.
+
+Examples:
+
+```text
+8.8.8.8
+54.221.123.45
+13.51.24.110
+```
+
+Characteristics:
+
+* Accessible from anywhere on the internet
+* Must be globally unique
+* Used for internet-facing services
+* Assigned by AWS or Internet Service Providers (ISPs)
+
+### AWS Examples
+
+Resources that often need public IPs:
+
+* Web Servers
+* Load Balancers
+* Bastion Hosts
+* Public APIs
+
+---
+
+# Private IP Addresses
+
+A **Private IP Address** is used only inside private networks.
+
+These addresses cannot be directly accessed from the public internet.
+
+Characteristics:
+
+* Used for internal communication
+* Not routable on the internet
+* Can be reused by different organizations
+* More secure because they are not directly exposed
+
+---
+
+# Private IPv4 Address Ranges (RFC 1918)
+
+| CIDR Block       | Address Range                   |
+| ---------------- | ------------------------------- |
+| `10.0.0.0/8`     | `10.0.0.0 – 10.255.255.255`     |
+| `172.16.0.0/12`  | `172.16.0.0 – 172.31.255.255`   |
+| `192.168.0.0/16` | `192.168.0.0 – 192.168.255.255` |
+
+---
+
+# Our VPC CIDR
+
+We created the VPC with:
+
+```text
+10.0.0.0/22
+```
+
+This falls within:
+
+```text
+10.0.0.0/8
+```
+
+Therefore, our VPC uses **private IP addresses**.
+
+---
+
+# Communication Inside AWS
+
+Most communication inside a VPC uses **private IP addresses**.
+
+Example:
+
+```text
+Web Server      → 10.0.0.10
+Database Server → 10.0.1.20
+Redis Server    → 10.0.2.30
+```
+
+Communication:
+
+```text
+10.0.0.10  →  10.0.1.20
+```
+
+Traffic never leaves the VPC and does not require the internet.
+
+---
+
+# Communication with the Internet
+
+When an EC2 instance needs to communicate with systems outside the VPC, it uses a **public IP address**.
+
+Example:
+
+```text
+EC2 Instance
+Private IP: 10.0.0.10
+Public IP : 54.221.123.45
+```
+
+Communication:
+
+```text
+Internet
+     ↓
+54.221.123.45
+     ↓
+EC2 Instance
+10.0.0.10
+```
+
+AWS automatically maps the public IP to the instance's private IP.
+
+---
+
+# Why Use Private IPs Inside a VPC?
+
+### Security
+
+Private IPs are not directly reachable from the internet.
+
+### Performance
+
+Traffic remains inside AWS's private network.
+
+### Cost Efficiency
+
+Internal communication does not require public internet routing.
+
+### Scalability
+
+Millions of private IP addresses can be used within VPCs.
+
+---
+
+# Typical AWS Architecture
+
+```text
+Internet
+    │
+Public IP
+54.221.123.45
+    │
+Web Server
+10.0.0.10
+    │
+Database Server
+10.0.1.20
+    │
+Cache Server
+10.0.2.30
+```
+
+* External users communicate using the **Public IP**.
+* Internal AWS resources communicate using **Private IPs**.
+
+---
+
+# Key Points for Exams/Interviews
+
+* Public IPs are globally reachable over the internet.
+* Private IPs are used only inside private networks.
+* EC2 instances always have a private IP address.
+* EC2 instances receive public IP addresses only when internet access is required.
+* Our VPC CIDR `10.0.0.0/22` is a **private CIDR block** because it belongs to the `10.0.0.0/8` private range.
+* Communication between AWS resources inside the same VPC usually happens using **private IP addresses**.
+<img width="733" height="620" alt="image" src="https://github.com/user-attachments/assets/6923e5ef-bd34-48a2-84d0-f618cf899e99" />
+
+
