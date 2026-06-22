@@ -501,6 +501,7 @@ The following diagram shows a VPC with five subnets, a main route table, and thr
 <img width="557" height="507" alt="image" src="https://github.com/user-attachments/assets/88aa1724-96fe-4558-9b3b-ca119850e6cd" />
 
 
+<img width="718" height="510" alt="image" src="https://github.com/user-attachments/assets/dc8695c5-400f-4992-954f-b47860ca99c9" />
 
 
 
