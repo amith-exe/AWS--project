@@ -1369,5 +1369,468 @@ Cache Server
 * Our VPC CIDR `10.0.0.0/22` is a **private CIDR block** because it belongs to the `10.0.0.0/8` private range.
 * Communication between AWS resources inside the same VPC usually happens using **private IP addresses**.
 <img width="733" height="620" alt="image" src="https://github.com/user-attachments/assets/6923e5ef-bd34-48a2-84d0-f618cf899e99" />
+# Elastic IP Addresses (EIP)
+
+## What is an Elastic IP?
+
+An **Elastic IP Address (EIP)** is a **static public IPv4 address** provided by AWS that you can associate with an EC2 instance.
+
+Think of it as:
+
+```text
+Elastic IP = Permanent Public IP Address
+```
+
+Unlike automatically assigned public IPs, an Elastic IP remains yours until you release it.
+
+---
+
+# Why Do We Need an Elastic IP?
+
+Our **webserver-app** needs a public IP address so users on the internet can reach it.
+
+Example:
+
+```text
+Internet
+     ↓
+Elastic IP (54.x.x.x)
+     ↓
+EC2 Instance (10.0.0.10)
+```
+
+Users connect to the Elastic IP, and AWS routes the traffic to the EC2 instance.
+
+---
+
+# Auto-Assigned Public IP vs Elastic IP
+
+## Auto-Assigned Public IP
+
+AWS can automatically assign a public IP when an instance launches.
+
+Example:
+
+```text
+EC2 Instance
+Private IP : 10.0.0.10
+Public IP  : 54.20.100.10
+```
+
+### Limitations
+
+❌ May change when the instance is stopped and started.
+
+❌ Cannot easily move to another instance.
+
+❌ Not suitable for production systems.
+
+---
+
+## Elastic IP (EIP)
+
+Example:
+
+```text
+EC2 Instance
+Private IP : 10.0.0.10
+Elastic IP : 54.20.100.10
+```
+
+### Advantages
+
+✅ Static public IP address
+
+✅ Remains the same after stop/start cycles
+
+✅ Can be detached and attached to another instance
+
+✅ Suitable for production workloads
+
+---
+
+# Why Not Use Auto-Assigned Public IPs?
+
+Suppose your website is:
+
+```text
+https://54.20.100.10
+```
+
+You stop and start the instance.
+
+New public IP:
+
+```text
+54.90.110.25
+```
+
+Problems:
+
+* Bookmarks stop working
+* DNS records become invalid
+* Applications lose connectivity
+* Users cannot access the website
+
+Elastic IP solves this problem because the IP never changes.
+
+---
+
+# Moving an Elastic IP
+
+Suppose:
+
+```text
+Server A
+Elastic IP: 54.20.100.10
+```
+
+Server A crashes.
+
+You can move the Elastic IP:
+
+```text
+Server A ❌
+     ↓
+Detach EIP
+     ↓
+Attach EIP
+     ↓
+Server B ✅
+```
+
+Users continue using:
+
+```text
+54.20.100.10
+```
+
+without noticing the server change.
+
+This is extremely useful during:
+
+* Server failures
+* Maintenance
+* Blue-Green deployments
+* Disaster recovery
+
+---
+
+# Real-World Example
+
+Without Elastic IP:
+
+```text
+Internet
+     ↓
+54.20.100.10
+     ↓
+Server Restart
+     ↓
+54.90.110.25
+```
+
+Public IP changed.
+
+---
+
+With Elastic IP:
+
+```text
+Internet
+     ↓
+54.20.100.10
+     ↓
+Server Restart
+     ↓
+54.20.100.10
+```
+
+Public IP remains the same.
+
+---
+
+# Residential ISP Analogy
+
+Home internet providers usually assign **dynamic public IP addresses**.
+
+Example:
+
+Today:
+
+```text
+103.21.50.10
+```
+
+Tomorrow:
+
+```text
+103.45.67.90
+```
+
+The ISP can change it whenever they want.
+
+An Elastic IP is similar to paying for a **static public IP address** that never changes.
+
+---
+
+# Architecture
+
+```text
+Internet
+     ↓
+Elastic IP (54.x.x.x)
+     ↓
+Internet Gateway
+     ↓
+EC2 Instance
+Private IP (10.0.0.10)
+```
+
+---
+
+# Important Notes
+
+* Elastic IPs are IPv4 addresses.
+* An EIP belongs to your AWS account until released.
+* One EIP can be associated with only one resource at a time.
+* You can reassign an EIP between instances whenever needed.
+
+---
+
+# Exam/Interview Points
+
+| Feature                   | Auto Public IP | Elastic IP |
+| ------------------------- | -------------- | ---------- |
+| Publicly Accessible       | ✅ Yes          | ✅ Yes      |
+| Static                    | ❌ No           | ✅ Yes      |
+| Changes after Stop/Start  | ✅ Yes          | ❌ No       |
+| Movable Between Instances | ❌ No           | ✅ Yes      |
+| Suitable for Production   | ❌ No           | ✅ Yes      |
+
+---
+
+# Quick Revision
+
+```text
+EC2 Instance
+      ↓
+Needs Internet Access
+      ↓
+Assign Elastic IP
+      ↓
+Static Public IPv4 Address
+      ↓
+Can Survive Restarts
+      ↓
+Can Be Moved Between Servers
+      ↓
+Ideal for Production Systems
+```
+
+**Remember:**
+
+```text
+Auto Public IP = Temporary Public Address
+Elastic IP     = Permanent Public Address
+Private IP     = Internal VPC Address
+```
+# Allocating and Associating an Elastic IP (EIP)
+
+## Objective
+
+Allocate an **Elastic IP (EIP)** and associate it with the **webserver-app** EC2 instance so that it has a **static public IPv4 address**.
+
+---
+
+# Step 1: Open Elastic IPs
+
+1. Log in to the AWS Console.
+2. Search for **EC2** in the top search bar.
+3. Open the **EC2 Dashboard**.
+4. From the left sidebar, under **Network & Security**, click:
+
+```text
+Elastic IPs
+```
+
+---
+
+# Step 2: Allocate an Elastic IP
+
+Click:
+
+```text
+Allocate Elastic IP address
+```
+
+Keep the default settings:
+
+### Public IPv4 Pool
+
+```text
+Amazon's pool of IPv4 addresses
+```
+
+### Network Border Group
+
+```text
+us-east-1
+```
+
+Click:
+
+```text
+Allocate
+```
+
+AWS will allocate a new public IPv4 address to your account.
+
+Example:
+
+```text
+54.221.123.45
+```
+
+---
+
+# Step 3: Select the Elastic IP
+
+After allocation:
+
+1. Return to the **Elastic IPs** list.
+2. Select the newly created Elastic IP by checking its checkbox.
+
+---
+
+# Step 4: Associate the Elastic IP
+
+Click:
+
+```text
+Actions
+→ Associate Elastic IP address
+```
+
+Configure:
+
+### Resource Type
+
+```text
+Instance
+```
+
+### Instance
+
+Select:
+
+```text
+webserver-app
+```
+
+Click:
+
+```text
+Associate
+```
+
+---
+
+# Step 5: Verify
+
+Go to:
+
+```text
+EC2
+→ Instances
+→ webserver-app
+```
+
+Check the instance details.
+
+You should now see:
+
+```text
+Private IPv4 Address : 10.x.x.x
+Public IPv4 Address  : 54.x.x.x
+Elastic IP           : Associated
+```
+
+---
+
+# Architecture
+
+```text
+Internet
+     ↓
+Elastic IP (54.x.x.x)
+     ↓
+Internet Gateway
+     ↓
+EC2 Instance
+(webserver-app)
+Private IP (10.x.x.x)
+```
+
+---
+
+# What Happens Internally?
+
+Before association:
+
+```text
+EC2 Instance
+Private IP: 10.x.x.x
+Public IP : None
+```
+
+After association:
+
+```text
+EC2 Instance
+Private IP : 10.x.x.x
+Elastic IP : 54.x.x.x
+```
+
+AWS automatically maps the Elastic IP to the instance's private IP.
+
+---
+
+# Why Use an Elastic IP?
+
+* Static public IPv4 address
+* Does not change after restarting the instance
+* Can be detached and attached to another EC2 instance
+* Suitable for production servers and websites
+
+---
+
+# Quick Revision
+
+```text
+EC2
+ ↓
+Elastic IPs
+ ↓
+Allocate Elastic IP address
+ ↓
+Keep Default Settings
+ ↓
+Allocate
+ ↓
+Select Elastic IP
+ ↓
+Actions
+ ↓
+Associate Elastic IP Address
+ ↓
+Resource Type → Instance
+ ↓
+Select → webserver-app
+ ↓
+Associate
+ ↓
+Verify in EC2 Instance Details
+```
 
 
