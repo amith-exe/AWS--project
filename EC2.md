@@ -575,3 +575,290 @@ Connect using Private Key
     ↓
 Authentication Successful
 ```
+# Launching an EC2 Instance (webserver-app)
+
+## Objective
+
+Create an Amazon Linux EC2 instance named **webserver-app** inside the **web-public-a** subnet.
+
+---
+
+## Prerequisites
+
+Make sure the following resources already exist:
+
+* VPC: `web-vpc`
+* Subnet: `web-public-a`
+* Key Pair: `web-key`
+
+---
+
+# Step-by-Step Instructions
+
+## Step 1: Open EC2 Dashboard
+
+1. Log in to the AWS Console.
+2. Search for **EC2** in the top search bar.
+3. Open the **EC2 Dashboard**.
+4. From the left sidebar, click:
+
+```text
+Instances
+```
+
+5. Click:
+
+```text
+Launch instances
+```
+
+---
+
+## Step 2: Configure Basic Details
+
+### Name
+
+Set the Name tag:
+
+```text
+webserver-app
+```
+
+> **Note:** The name is case-sensitive.
+
+---
+
+### Amazon Machine Image (AMI)
+
+Select:
+
+```text
+Amazon Linux
+```
+
+This is the operating system that will be installed on the server.
+
+---
+
+### Instance Type
+
+Select:
+
+```text
+t3.micro
+```
+
+Specifications:
+
+* 2 vCPUs
+* 1 GB RAM
+* Free Tier eligible
+
+---
+
+### Key Pair
+
+Select:
+
+```text
+web-key
+```
+
+This key pair will be used later to securely connect to the EC2 instance using SSH.
+
+---
+
+## Step 3: Configure Networking
+
+Click:
+
+```text
+Edit
+```
+
+Then configure:
+
+### VPC
+
+```text
+web-vpc
+```
+
+### Subnet
+
+```text
+web-public-a
+```
+
+### Auto-assign Public IP
+
+```text
+Disable
+```
+
+This means the instance will receive only a private IP address and cannot be directly accessed from the internet.
+
+---
+
+## Step 4: Configure Security Group
+
+Under **Firewall (Security Groups)**:
+
+Select:
+
+```text
+Create security group
+```
+
+### Security Group Name
+
+```text
+web-empty
+```
+
+### Description
+
+```text
+Placeholder security group for web application server
+```
+
+### Remove Default Rules
+
+AWS automatically creates an SSH rule:
+
+```text
+Type: SSH
+Port: 22
+Source: Anywhere (0.0.0.0/0)
+```
+
+Click **Remove**.
+
+Final configuration:
+
+```text
+Inbound Rules: None
+```
+
+The instance will initially be completely locked down.
+
+---
+
+## Step 5: Storage
+
+Leave the default configuration.
+
+Typically:
+
+```text
+8 GB gp3 EBS Volume
+```
+
+---
+
+## Step 6: Advanced Details
+
+Leave all settings as default.
+
+No changes are required.
+
+---
+
+## Step 7: Launch the Instance
+
+Click:
+
+```text
+Launch instance
+```
+
+You should see a message similar to:
+
+```text
+Success:
+Successfully initiated launch of instance
+(i-123123123)
+```
+
+---
+
+## Step 8: Verify
+
+Go back to:
+
+```text
+EC2
+→ Instances
+```
+
+Confirm that the new instance appears:
+
+```text
+webserver-app
+```
+
+---
+
+# Final Configuration Summary
+
+| Setting               | Value         |
+| --------------------- | ------------- |
+| Name                  | webserver-app |
+| AMI                   | Amazon Linux  |
+| Instance Type         | t3.micro      |
+| Key Pair              | web-key       |
+| VPC                   | web-vpc       |
+| Subnet                | web-public-a  |
+| Auto-assign Public IP | Disabled      |
+| Security Group        | web-empty     |
+| Inbound Rules         | None          |
+| Storage               | Default       |
+| Advanced Details      | Default       |
+
+---
+
+# Architecture
+
+```text
+AWS VPC (web-vpc)
+│
+├── Subnet: web-public-a
+│
+└── EC2 Instance
+      ├── Name: webserver-app
+      ├── AMI: Amazon Linux
+      ├── Type: t3.micro
+      ├── Private IP Only
+      └── Security Group: web-empty
+```
+
+---
+
+# Quick Revision
+
+```text
+EC2
+ ↓
+Launch Instance
+ ↓
+Name → webserver-app
+ ↓
+AMI → Amazon Linux
+ ↓
+Type → t3.micro
+ ↓
+Key Pair → web-key
+ ↓
+VPC → web-vpc
+ ↓
+Subnet → web-public-a
+ ↓
+Public IP → Disabled
+ ↓
+Security Group → web-empty
+ ↓
+Remove SSH Rule
+ ↓
+Launch Instance
+```
+
