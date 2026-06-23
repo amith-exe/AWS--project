@@ -950,3 +950,5 @@ Administer Linux Server
 SSH is essentially:
 
 **A secure, encrypted remote terminal that allows you to administer servers anywhere in the world using cryptographic keys instead of passwords.**
+
+## after doing you stuffs like adding webserver and all ,,then add new rule in aws server u running  for visters in seurity group like custom tcp and give the port number and then add ip from anywhere with v4
