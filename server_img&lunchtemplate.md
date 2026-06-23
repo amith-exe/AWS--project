@@ -629,3 +629,229 @@ Your backend server is ready in minutes instead of configuring everything from s
 # One-Line Definition
 
 **AMI (Amazon Machine Image) is a reusable blueprint containing an operating system, installed software, configurations, and files that AWS uses to create identical EC2 instances quickly and consistently.**
+
+# AWS Launch Template Notes
+
+## What is a Launch Template?
+
+A **Launch Template** is a **pre-configured blueprint for launching EC2 instances**.
+
+Think of it as:
+
+```text
+Launch Template =
+AMI
++ Instance Type
++ Key Pair
++ Network Settings
++ Security Groups
++ Storage Configuration
+```
+
+---
+
+## AMI vs Launch Template
+
+### AMI
+
+Contains only:
+
+```text
+Operating System
+Installed Software
+Configurations
+Files
+```
+
+### Launch Template
+
+Contains:
+
+```text
+AMI
+Instance Type
+Key Pair
+Subnet
+Security Groups
+Storage
+Network Settings
+```
+
+---
+
+## Why Use Launch Templates?
+
+Without a Launch Template:
+
+```text
+Launch EC2
+↓
+Choose AMI
+↓
+Choose Instance Type
+↓
+Select Key Pair
+↓
+Configure Network
+↓
+Configure Security Groups
+↓
+Configure Storage
+```
+
+You repeat these steps every time.
+
+---
+
+With a Launch Template:
+
+```text
+Select Launch Template
+↓
+Launch EC2
+```
+
+Everything is pre-configured.
+
+---
+
+## Why Are They Useful?
+
+### Consistency
+
+Every server launches with the same configuration.
+
+### Faster Deployment
+
+No need to configure settings repeatedly.
+
+### Works with Auto Scaling Groups
+
+ASGs use Launch Templates to create identical servers automatically.
+
+---
+
+# PatientPing Launch Template Assignment
+
+## Steps
+
+### 1. Open Launch Templates
+
+```text
+AWS Console
+↓
+EC2
+↓
+Launch Templates
+↓
+Create Launch Template
+```
+
+---
+
+### 2. Configure
+
+**Name**
+
+```text
+patientping-web-launcher
+```
+
+**Description**
+
+```text
+Launch template for t3.micro with PatientPing app preinstalled
+```
+
+**AMI**
+
+```text
+My AMIs
+↓
+patientping-web-base
+```
+
+**Instance Type**
+
+```text
+t3.micro
+```
+
+**Key Pair**
+
+```text
+patientping-key
+```
+
+---
+
+### Network Settings
+
+**Subnet**
+
+```text
+patientping-public-a
+```
+
+**Availability Zone**
+
+```text
+Leave Unset
+```
+
+Reason:
+
+```text
+Subnet already determines the AZ.
+```
+
+**Security Group**
+
+```text
+patientping-public
+```
+
+---
+
+### Storage
+
+```text
+8 GiB
+gp3
+(Default)
+```
+
+---
+
+### Create Template
+
+```text
+Create Launch Template
+↓
+Verify:
+patientping-web-launcher
+appears in the list.
+```
+
+---
+
+# Big Picture
+
+```text
+PatientPing Base AMI
+          +
+Launch Template
+          ↓
+PatientPing EC2 Server
+          ↓
+Can be used by
+Auto Scaling Groups
+to launch identical servers automatically.
+```
+
+---
+
+# One-Line Definition
+
+**Launch Template is a reusable configuration that defines exactly how new EC2 instances should be launched, including the AMI, hardware, networking, security, and storage settings.**
+
