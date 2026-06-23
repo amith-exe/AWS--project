@@ -1,165 +1,110 @@
 # AWS Compute Scaling & Cost Optimization Notes
 
-## Auto Scaling Groups (ASG), Reserved Instances & Savings Plans
-
 ---
 
 # 1. Auto Scaling Groups (ASG)
 
-## The Problem
+## Problem
 
-One server is easy.
+Managing hundreds of servers manually is difficult.
 
-But what if you need:
+## What is ASG?
 
-```text
-100 servers
-500 servers
-1000 servers
-```
-
-Manually creating and managing them becomes difficult.
-
----
-
-## What is an Auto Scaling Group?
-
-An **Auto Scaling Group (ASG)** automatically launches and manages EC2 instances for you.
+An **Auto Scaling Group (ASG)** automatically launches, removes, and replaces EC2 instances.
 
 You define:
 
-1. Desired number of instances
-2. Minimum and maximum limits
-3. Scaling rules
+* Desired instances
+* Minimum instances
+* Maximum instances
+* Scaling rules
 
-AWS handles everything else.
+AWS handles the rest.
 
 ---
 
 ## How It Works
 
 ```text
-Auto Scaling Group
-      ↓
-Launch EC2 Instances
-      ↓
-Monitor Load
-      ↓
-Scale Up or Down Automatically
+Traffic Increases
+       ↓
+Launch More Servers
+       ↓
+Traffic Decreases
+       ↓
+Terminate Extra Servers
 ```
-
----
-
-## Automatic Scaling
 
 Example:
 
 ```text
-CPU Usage > 70%
-       ↓
-Launch 2 more servers
+CPU > 70%
+      ↓
+Add 2 servers
+
+CPU < 20%
+      ↓
+Remove servers
 ```
 
-Later:
-
-```text
-CPU Usage < 20%
-       ↓
-Terminate extra servers
-```
-
-This is called:
-
-```text
-Horizontal Scaling
-```
+This is called **Horizontal Scaling**.
 
 ---
 
-## Self-Healing Servers
-
-ASG can automatically replace failed instances.
-
-Example:
+## Self-Healing
 
 ```text
-Desired Capacity = 1
-Minimum = 1
-Maximum = 1
+Desired = 1
+Min = 1
+Max = 1
 ```
 
 If the server crashes:
 
 ```text
-Server Crashes
+Server Fails
       ↓
 ASG Detects Failure
       ↓
-Terminate Bad Instance
+Terminate Instance
       ↓
 Launch New Instance
 ```
 
-This ensures high availability.
+ASG provides **high availability**.
 
 ---
 
-## Real Production Example
-
-Application traffic:
+## Real Example
 
 ```text
-Normal → 2 servers
-High traffic → 10 servers
-Low traffic → 2 servers
+Normal Traffic → 2 servers
+High Traffic   → 10 servers
+Low Traffic    → 2 servers
 ```
-
-Everything scales automatically based on demand.
 
 ---
 
 # 2. Reserved Instances (RI)
 
-## Why Cost Optimization Matters
+## What is RI?
 
-Cloud servers cost money.
-
-Example:
+A pricing model where you commit to using compute resources for:
 
 ```text
-t3.micro
-≈ $7.60/month
+1 year or 3 years
 ```
 
-Scaling increases cost:
-
-```text
-100 servers → $760/month
-1000 servers → $7,600/month
-```
-
-Even small discounts can save a lot.
-
----
-
-## What is a Reserved Instance?
-
-A Reserved Instance is a pricing model where you commit to using compute resources for:
-
-```text
-1 Year
-or
-3 Years
-```
-
-In return, AWS gives a discount.
+In return, AWS gives discounts.
 
 ---
 
 ## Key Idea
 
 ```text
-Long-term commitment = Lower cost
+Long-term commitment
+        ↓
+Lower Cost
 ```
 
 ---
@@ -177,14 +122,14 @@ Long-term commitment = Lower cost
 Stable workloads:
 
 * Databases
-* Backend services
+* Backend APIs
 * Always-running applications
 
 ---
 
 ## Advantages
 
-* Significant cost savings
+* Significant savings
 * Predictable billing
 * Guaranteed capacity
 
@@ -194,7 +139,7 @@ Stable workloads:
 
 * Less flexible
 * Long-term commitment
-* Hard to change configuration
+* Hard to change configurations
 
 ---
 
@@ -204,16 +149,16 @@ Savings Plans provide discounts with more flexibility than Reserved Instances.
 
 ---
 
-## How Savings Plans Work
+## How It Works
 
 You commit to spending:
 
 ```text
 $X per hour
-for 1–3 years
+for 1-3 years
 ```
 
-AWS automatically applies discounts to your usage.
+AWS automatically applies discounts.
 
 ---
 
@@ -228,18 +173,19 @@ Commit to specific instance types
 Savings Plans:
 
 ```text
-Commit to a spending amount
+Commit to spending amount
 ```
 
 ---
 
 ## Flexibility
 
-You can change:
+You can often change:
 
 * Instance sizes
 * Instance families
-* Regions (in many cases)
+* Availability Zones
+* Regions
 
 while still getting discounts.
 
@@ -250,7 +196,7 @@ while still getting discounts.
 Typical savings:
 
 ```text
-26% – 72%
+26% - 72%
 ```
 
 ---
@@ -259,39 +205,123 @@ Typical savings:
 
 Dynamic environments:
 
-* Auto scaling systems
-* Growing applications
+* Auto Scaling applications
+* Growing systems
 * Changing infrastructure
 
 ---
 
-# Reserved Instances vs Savings Plans
+# 4. Spot Instances
 
-| Feature                | Reserved Instances | Savings Plans     |
-| ---------------------- | ------------------ | ----------------- |
-| Commitment             | Specific compute   | Spending amount   |
-| Flexibility            | Lower              | Higher            |
-| Change Instance Size   | Limited            | Yes               |
-| Change Instance Family | Limited            | Yes               |
-| Discounts              | High               | High              |
-| Best For               | Stable workloads   | Dynamic workloads |
+## What are Spot Instances?
+
+Spot Instances let you use AWS's **unused EC2 capacity** at massive discounts.
+
+Typical savings:
+
+```text
+Up to ~90% cheaper
+than On-Demand pricing
+```
+
+---
+
+## The Catch
+
+AWS can reclaim the server at any time.
+
+You get approximately:
+
+```text
+2-minute warning
+```
+
+before the instance is terminated.
+
+---
+
+## Key Idea
+
+```text
+Very Cheap
+     +
+Can disappear anytime
+```
+
+---
+
+## Best For
+
+Fault-tolerant and stateless workloads:
+
+* Batch processing
+* Background jobs
+* Data analytics
+* AI/ML training
+* Video rendering
+* Offline computations
+* CI/CD build servers
+
+---
+
+## Not Suitable For
+
+Always-on systems:
+
+* Databases
+* Production APIs
+* Authentication servers
+* Critical backend services
+
+---
+
+## Example
+
+Suppose an image processing job takes 10 hours.
+
+```text
+Spot Instance
+      ↓
+Server terminates after 4 hours
+      ↓
+Launch another Spot Instance
+      ↓
+Continue processing
+```
+
+Because the workload is stateless, losing one server is acceptable.
+
+---
+
+# Reserved Instances vs Savings Plans vs Spot Instances
+
+| Feature               | Reserved Instances | Savings Plans     | Spot Instances          |
+| --------------------- | ------------------ | ----------------- | ----------------------- |
+| Commitment            | 1-3 years          | 1-3 years         | None                    |
+| Discounts             | High               | High              | Very High (~90%)        |
+| Flexibility           | Lower              | Higher            | Very High               |
+| Reliability           | High               | High              | Low                     |
+| Can AWS terminate it? | No                 | No                | Yes                     |
+| Best For              | Stable workloads   | Dynamic workloads | Interruptible workloads |
 
 ---
 
 # Real Production Strategy
-
-Many companies combine pricing models:
 
 ```text
 Databases
       ↓
 Reserved Instances
 
-Application Servers (Auto Scaling)
+Application Servers (ASG)
       ↓
 Savings Plans
 
-Temporary / Testing Systems
+Background Jobs / AI Training
+      ↓
+Spot Instances
+
+Temporary Testing Systems
       ↓
 On-Demand Pricing
 ```
@@ -301,16 +331,19 @@ On-Demand Pricing
 # Big Picture
 
 ```text
-Use Auto Scaling Groups
+Auto Scaling Groups
       ↓
 Scale Up During High Traffic
       ↓
 Scale Down During Low Traffic
       ↓
-Automatically Replace Failed Servers
+Replace Failed Instances
       ↓
-Reduce Costs Using
-Reserved Instances or Savings Plans
+Optimize Costs Using:
+
+Reserved Instances
+Savings Plans
+Spot Instances
 ```
 
 ---
@@ -323,8 +356,12 @@ Automatically adjusts the number of servers based on demand and replaces failed 
 
 ### Reserved Instance (RI)
 
-A pricing model where you commit to long-term usage for lower cost.
+Commit to long-term compute usage for significant discounts.
 
 ### Savings Plan
 
-A flexible pricing model where you commit to spending and receive discounts across different compute resources.
+Commit to a spending amount and receive flexible discounts across compute resources.
+
+### Spot Instance
+
+Use AWS's unused compute capacity at massive discounts, but AWS can terminate the instance at any time with about a 2-minute warning.
