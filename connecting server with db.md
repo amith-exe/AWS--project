@@ -281,29 +281,63 @@ This is more secure and easier to manage.
 
 ---
 
-# Connection Verification
+# Step-by-Step Guide: Connect to EC2 and Access RDS Database
 
-SSH into EC2:
+## Step 1: Connect to EC2 via SSH
+
+Make sure you have your `.pem` key file.
 
 ```bash
-ssh patientping
+chmod 400 your-key.pem
 ```
 
-Verify PostgreSQL client:
+Connect to EC2:
+
+```bash
+ssh -i your-key.pem ec2-user@EC2_PUBLIC_IP
+```
+
+Example:
+
+```bash
+ssh -i patientping.pem ec2-user@13.233.xxx.xxx
+```
+
+---
+
+## Step 2: Verify PostgreSQL Client is Installed
 
 ```bash
 which psql
 ```
 
-Expected:
+Expected output:
 
 ```bash
 /usr/bin/psql
 ```
 
+If not installed:
+
+```bash
+sudo yum install postgresql -y
+```
+
 ---
 
-Connect:
+## Step 3: Get RDS Endpoint
+
+Go to AWS Console → RDS → Databases → Copy endpoint.
+
+Example:
+
+```text
+patientping-db.xxxxx.ap-south-1.rds.amazonaws.com
+```
+
+---
+
+## Step 4: Connect to PostgreSQL from EC2
 
 ```bash
 psql -h RDS_ENDPOINT -U postgres -d patientping
@@ -317,15 +351,39 @@ psql -h patientping-db.xxxxx.ap-south-1.rds.amazonaws.com \
 -d patientping
 ```
 
-Enter password.
+Enter your database password when prompted.
 
-Success:
+---
+
+## Step 5: Verify Connection
+
+If successful, you will see:
 
 ```sql
 patientping=>
 ```
 
-This means:
+You can run:
+
+```sql
+\dt
+```
+
+to list tables.
+
+---
+
+## Step 6: Exit Database
+
+```sql
+\q
+```
+
+---
+
+# Connection Verification Summary
+
+Successful connection means:
 
 ```text
 DNS Works
@@ -347,7 +405,9 @@ Usually:
 Security Group Problem
 ```
 
-RDS inbound rule missing.
+Fix:
+
+* Ensure RDS inbound rule allows port 5432 from EC2 SG
 
 ---
 
@@ -368,6 +428,18 @@ Usually:
 
 ```text
 Wrong Endpoint
+```
+
+---
+
+### Cannot SSH into EC2
+
+Check:
+
+```text
+Security Group allows port 22 from your IP
+Correct key (.pem) used
+Correct username (ec2-user / ubuntu)
 ```
 
 ---
